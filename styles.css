@@ -1,0 +1,50 @@
+* {
+    font-family:'Courier New', Courier, monospace;
+
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+
+    background-color: rgb(0, 10, 100);
+    color: rgb(239, 239, 239);
+}
+
+body {
+    height: 100vh;
+
+    display: grid;
+    place-items: center;
+}
+
+.container {
+    display: grid;
+    justify-items: center;
+    gap: 2rem;
+}
+
+.grid {
+    height: 30rem;
+    width: auto;
+
+    display: grid;
+    grid-template-rows: repeat(3,1fr);
+    grid-template-columns: repeat(3,1fr);
+    grid-auto-flow: row;
+}
+
+.cell {
+    height: 10rem;
+    width: 10rem;
+    padding-top: 1.25rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: rgb(239, 239, 239);
+    box-shadow: 0px 0px 0px 4px rgba(0,10,100,1);
+
+    color: rgb(0, 10, 100);
+    font-size: 12rem;
+    user-select: none;
+}

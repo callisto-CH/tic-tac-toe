@@ -1,33 +1,28 @@
 const gameboard = (function () {
 
 	const board = [[], [], []];
+	const grid = document.querySelector(`.grid`);
 	for (let i = 0; i < 3; i++) {
 		for (let j = 0; j < 3; j++) {
 			board[i].push(cell());
-		}
+
+			const cellDiv = document.createElement(`div`);
+			cellDiv.classList.add(`cell`);
+			cellDiv.setAttribute(`id`, `${i}${j}`);
+
+			cellDiv.addEventListener(`click`, clickHandler);
+			function clickHandler (event) {
+				gameState.playTurn(event.target);
+			};
+
+			grid.appendChild(cellDiv);
+		};
 	};
 
 	const getBoard = () => board;
 
-	const render = () => {
-		//DOM VERSION
-	};
-
-	// NOT NEEDED FOR DOM VERSION
-	const renderConsole = () => {
-		str = "";
-		for (let i = 0; i < 3; i++) {
-			for (let j = 0; j < 3; j++) {
-				const mark = board[i][j].getMark();
-				str += mark ? mark : "_";
-			}
-			str += "\n";
-		}
-		console.log(str);
-	};
-
 	return {
-		getBoard, render, renderConsole
+		getBoard
 	};
 
 })();
@@ -38,8 +33,16 @@ function cell() {
 
 	const getMark = () => mark;
 
-	const addMark = (player) => {
+	const addMark = (cellDiv, player) => {
+		if (mark) {
+			return
+		};
 		mark = player == 1 ? "X" : "O";
+		renderMark(cellDiv);
+	};
+
+	const renderMark = (cellDiv) => {
+		cellDiv.textContent = mark;
 	};
 
 	return {
@@ -50,29 +53,26 @@ function cell() {
 
 const gameState = (function () {
 
+	const status = document.querySelector(`.status`);
+	const board = gameboard.getBoard();
 	let currentPlayer = 1;
 	let turnCount = 1;
 	let gameOver;
-
-	const getCurrentPlayer = () => currentPlayer;
 
 	const changeCurrentPlayer = () => {
 		currentPlayer = currentPlayer == 1 ? 2 : 1;
 	};
 
-	const getTurnCount = () => turnCount;
-
 	const incrementTurnCount = () => {
 		turnCount++;
 	};
 
-	const checkWin = function () {
+	const checkWin = function (board) {
 		// Checks for win by testing a string representation of the board with regex
-		// XXX = row case, X..X..X = top-right bottom-left diagonal case,
-		// X...X...X = column case, X....X....X = top-left bottom-right diagonal case
-		const board = gameboard.getBoard();
 		let str = "";
 		const regex = new RegExp(`(XXX|OOO)|(X..X..X|O..O..O)|(X...X...X|O...O...O)|(X....X....X|O....O....O)`);
+		// XXX = row case, X..X..X = top-right bottom-left diagonal case,
+		// X...X...X = column case, X....X....X = top-left bottom-right diagonal case
 		for (let i = 0; i < 3; i++) {
 			for (let j = 0; j < 3; j++) {
 				const mark = board[i][j].getMark();
@@ -83,48 +83,36 @@ const gameState = (function () {
 		return regex.test(str);
 	};
 
-	const playTurn = (row, column) => {
+	const playTurn = (cellDiv) => {
 		if (gameOver) {
-			console.log("The game is already over");
 			return
 		};
 
-		const cell = gameboard.getBoard()[row - 1][column - 1];
-		if (cell.getMark()) {
-			console.log("Move is invalid"); //ALTER FOR DOM VERSION
-			return
-		};
-
-		cell.addMark(currentPlayer);
-		gameboard.renderConsole();
+		const row = cellDiv.id[0];
+		const column = cellDiv.id[1];
+		const cell = board[row][column];
+		cell.addMark(cellDiv, currentPlayer);
 
 		//it's impossible to win before turn 4 so no need to check
-		if (turnCount > 4 && checkWin(gameboard.getBoard)) {
+		if (turnCount > 4 && checkWin(board)) {
 			gameOver = true;
-			console.log(`Player ${currentPlayer} wins`);
-			return 
+			status.textContent = `Player ${currentPlayer} wins`;
+			return
 		};
  
 		if (turnCount == 9) {
 			gameOver = true;
-			console.log(`The game ends in a tie`);
+			status.textContent = `The game ends in a tie`;
 			return
 		};
 
 		changeCurrentPlayer();
 		incrementTurnCount();
-		console.log(`Player ${currentPlayer}'s turn`);
+		status.textContent = `Player ${currentPlayer}'s turn`;
 	};
-
-	const startGame = () => {
-		gameboard.renderConsole();
-		console.log("Player 1's turn")
-	};
-
-	startGame();
 
 	return {
-		playTurn, getCurrentPlayer, getTurnCount
+		playTurn
 	};
 
 })();
